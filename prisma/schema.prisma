@@ -15,6 +15,7 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   email     String   @unique
+  nickname  String   @unique
   tokens    Token[]
   tweets    Tweet[]
   likes     Like[]
@@ -36,6 +37,7 @@ model Tweet {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
   likes     Like[]
+  views     Int
 }
 
 model Like {

@@ -1,7 +1,7 @@
 import React from "react";
 
 export default () => (
-  <div>
+  <div className="bg-red-200">
     <h1>Hello</h1>
   </div>
 );
