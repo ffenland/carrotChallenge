@@ -15,13 +15,16 @@ const handler = async (
   });
 
   if (!foundToken) return res.status(404).end();
-  // 토큰은 일치하나, email or phone이 일치하지 않은 경우. (남의 토큰을 입력한 경우!)
+  // 토큰은 일치하나, email이 일치하지 않은 경우. (남의 토큰을 입력한 경우!)
   if (email && email !== foundToken?.user.email) return res.status(404).end();
-  if (phone && phone !== foundToken?.user.phone) return res.status(404).end();
   req.session.user = { id: foundToken?.userId };
   await req.session.save();
   await client.token.deleteMany({
     where: { userId: foundToken.userId },
+  });
+  await client.user.update({
+    where: { id: foundToken.userId },
+    data: { emailVerified: true },
   });
   return res.json({ ok: true });
 };

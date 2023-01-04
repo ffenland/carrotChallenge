@@ -1,7 +1,12 @@
+import Tweet from "@components/tweet";
 import React from "react";
 
-export default () => (
-  <div className="bg-red-200">
-    <h1>Hello</h1>
-  </div>
-);
+const Home = () => {
+  return (
+    <div>
+      <div className="WRITE"></div>
+      <div className="TWEETS">hihi</div>
+    </div>
+  );
+};
+export default Home;

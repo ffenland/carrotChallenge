@@ -6,9 +6,17 @@ interface InputProps {
   type: string;
   register: UseFormRegisterReturn;
   required: boolean;
+  [key: string]: any;
 }
 
-const Input = ({ label, name, register, type, required }: InputProps) => {
+const Input = ({
+  label,
+  name,
+  register,
+  type,
+  required,
+  ...rest
+}: InputProps) => {
   return (
     <div>
       <label
@@ -24,6 +32,7 @@ const Input = ({ label, name, register, type, required }: InputProps) => {
           {...register}
           type={type}
           className="appearance-none w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-cyan-500 focus:border-cyan-500"
+          {...rest}
         />
       </div>
     </div>

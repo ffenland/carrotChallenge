@@ -1,31 +1,26 @@
-import Image from "next/image";
+import type { TweetWithUser } from "pages/tweet/[id]";
 
-interface tweetProp {
-    id:string;
-}
-
-const Tweet = ({ tweet }) => {
-
+const Tweet = ({ tweet }: { tweet: TweetWithUser }) => {
+  const tweetCreatedDate = new Date(tweet.createdAt);
+  const refinedDate = `${
+    tweetCreatedDate.getMonth() + 1
+  }월 ${tweetCreatedDate.getDate()}일 ${tweetCreatedDate.getHours()}시 ${tweetCreatedDate.getMinutes()}분`;
   return (
     <div className="flex">
-      <div className="IMAGE">
-        <div className="rounded-full bg-gray-500 w-8 h-8 aspect-square"></div>
+      <div className="IMAGE mr-2">
+        <div className="rounded-full bg-gray-500 w-12 h-12 aspect-square"></div>
       </div>
       <div className="w-full">
-        <div>
-          <span>JohnDoe</span>
-          <span>@Johny</span>
-          <span>1월 5일</span>
+        <div className="mt-1 space-x-1">
+          <span className="font-bold">{tweet.user.nickname}</span>
+          <span className="text-sm text-gray-600">{tweet.user.email}</span>
+          <span className="text-sm text-gray-600">{refinedDate}</span>
         </div>
         <div>
-          <p>Hi, lorem ipsum</p>
+          <p>{tweet.text}</p>
         </div>
-        <div className="flex justify-around items-center">
-          <div>
-            <span>VIEW</span>
-            <span>231k</span>
-          </div>
-          <div>
+        <div className="flex justify-end space-x-5 items-center px-5">
+          <div className="space-x-1">
             <span>Like</span>
             <span>1k</span>
           </div>

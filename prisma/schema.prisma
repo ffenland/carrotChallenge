@@ -11,14 +11,16 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  email     String   @unique
-  nickname  String   @unique
-  tokens    Token[]
-  tweets    Tweet[]
-  likes     Like[]
+  id            String   @id @default(cuid())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  email         String   @unique
+  emailVerified Boolean  @default(false)
+  password      String
+  nickname      String   @unique
+  tokens        Token[]
+  tweets        Tweet[]
+  likes         Like[]
 }
 
 model Token {
@@ -37,7 +39,7 @@ model Tweet {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
   likes     Like[]
-  views     Int
+  text      String
 }
 
 model Like {
