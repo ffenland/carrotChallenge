@@ -16,7 +16,6 @@ const handler = async (
   const exists = await db.user.findMany({
     where: { OR: [{ email: inputEmail }, { nickname: nickname }] },
   });
-
   if (exists.length === 0) {
     const payload = Math.floor(100000 + Math.random() * 900000) + "";
     console.log("1st", password, typeof password);

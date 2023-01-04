@@ -20,7 +20,6 @@ interface MutationResult {
 
 const Login: NextPage = () => {
   const { user, isLoading } = useUser();
-  console.log(user, "SDFASDF", isLoading);
   const [login, { data, loading }] =
     useMutation<MutationResult>("/api/auth/login");
   const { register, handleSubmit } = useForm<LoginForm>();

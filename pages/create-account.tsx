@@ -52,7 +52,6 @@ const Enter: NextPage = () => {
   useEffect(() => {
     if (data && !data?.ok) {
       setError("errors", { message: "Email or Nickname already used." });
-      reset();
     }
   }, [data]);
   useEffect(() => {
