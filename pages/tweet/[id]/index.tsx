@@ -1,8 +1,10 @@
 import Layout from "@components/layout";
-import OneTweet from "@components/tweet";
+import { withIronSessionSsr } from "iron-session/next";
+import { sessionOptions } from "@lib/withSession";
 import type { Tweet } from "@prisma/client";
 import { useRouter } from "next/router";
 import useSWR from "swr";
+import Button from "@components/button";
 
 export interface TweetWithUser extends Tweet {
   user: { email: string; nickname: string };
@@ -13,12 +15,19 @@ interface TweetResponse {
   tweet: TweetWithUser;
 }
 
-const TweetDetail = () => {
+interface SessionUser {
+  user: { id: string };
+}
+
+const TweetDetail = ({ user }: SessionUser) => {
   const router = useRouter();
   const tweetId = router.query.id;
   const { data } = useSWR<TweetResponse>(
     tweetId ? `/api/tweet/${tweetId}` : null
   );
+  const onEditClick = () => {
+    router.push(`/tweet/${tweetId}/edit`);
+  };
   if (data && data.tweet) {
     const tweetCreatedDate = new Date(data.tweet.createdAt);
     const refinedDate = `${
@@ -26,9 +35,13 @@ const TweetDetail = () => {
     }월 ${tweetCreatedDate.getDate()}일 ${tweetCreatedDate.getHours()}시 ${tweetCreatedDate.getMinutes()}분`;
     return (
       <Layout title="Tweet">
-        <div className="flex">
+        <div className="flex rounded-md p-1 shadow-md border border-gray-50">
           <div className="IMAGE mr-2">
-            <div className="rounded-full bg-gray-500 w-12 h-12 aspect-square"></div>
+            <div className="rounded-full bg-cyan-900 w-12 h-12 aspect-square flex justify-center items-center">
+              <span className="font-bold text-4xl mr-[2px] text-orange-100">
+                {data.tweet.user.nickname[0]}
+              </span>
+            </div>
           </div>
           <div className="w-full">
             <div className="mt-1 space-x-1">
@@ -47,6 +60,11 @@ const TweetDetail = () => {
                 <span>1k</span>
               </div>
             </div>
+            {user.id === data.tweet.userId ? (
+              <div className="mr-14">
+                <Button title="Edit your tweet" onClick={onEditClick} />
+              </div>
+            ) : null}
           </div>
         </div>
       </Layout>
@@ -63,3 +81,15 @@ const TweetDetail = () => {
 };
 
 export default TweetDetail;
+
+export const getServerSideProps = withIronSessionSsr(
+  async function getServerSideProps({ req }) {
+    const user = req.session.user;
+    return {
+      props: {
+        user: user,
+      },
+    };
+  },
+  sessionOptions
+);

@@ -10,7 +10,11 @@ const Tweet = ({ tweet }: { tweet: TweetWithUser }) => {
     <Link href={`/tweet/${tweet.id}`}>
       <div className="flex cursor-pointer">
         <div className="IMAGE mr-2">
-          <div className="rounded-full bg-gray-500 w-12 h-12 aspect-square"></div>
+          <div className="rounded-full bg-cyan-900 w-12 h-12 aspect-square flex justify-center items-center">
+            <span className="font-bold text-4xl mr-[2px] text-orange-100">
+              {tweet.user.nickname[0]}
+            </span>
+          </div>
         </div>
         <div className="w-full">
           <div className="mt-1 space-x-1">

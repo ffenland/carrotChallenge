@@ -1,9 +1,12 @@
 import Button from "@components/button";
 import useMutation from "@lib/useMutation";
 import useUser from "@lib/useUser";
+import { withIronSessionSsr } from "iron-session/next";
+import { sessionOptions } from "@lib/withSession";
 import { useRouter } from "next/router";
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import useSWR from "swr";
 
 interface TweetForm {
   tweetText: string;
@@ -13,34 +16,47 @@ interface TweetWriteResponse {
   tweetId: string;
 }
 
-const WriteTweet = () => {
-  const { user } = useUser();
-  const { register, handleSubmit } = useForm<TweetForm>();
-  const [write, { data, loading }] =
-    useMutation<TweetWriteResponse>("/api/tweet");
-  const router = useRouter();
-  const onValid = (validForm: TweetForm) => {
-    write({ ...validForm, userId: user?.id });
+interface EditTweetProps {
+  user: {
+    id: string;
   };
-  console.log(data);
+  query: string;
+}
+
+const EditTweet = ({ user, query }: EditTweetProps) => {
+  const router = useRouter();
+  const { register, handleSubmit } = useForm<TweetForm>();
+  const [edit, { data, loading }] =
+    useMutation<TweetWriteResponse>("/api/tweet");
+  const tweetId = router.query.id;
+  const { data: tweetData } = useSWR(tweetId ? `/api/tweet/${query}` : null);
+  const onValid = (validForm: TweetForm) => {
+    edit({ ...validForm, userId: user?.id });
+  };
   useEffect(() => {
     if (data && data.ok) {
       router.push(`/tweet/${data.tweetId}`);
     }
   }, [data, router]);
+
+  useEffect(() => {
+    if (tweetData && tweetData.tweet) {
+      console.log(tweetData);
+    }
+  }, [tweetData]);
   return (
     <div className="flex">
       <div className="IMAGE mr-2">
         <div className="rounded-full bg-cyan-900 w-12 h-12 aspect-square flex justify-center items-center">
           <span className="font-bold text-4xl mr-[2px] text-orange-100">
-            {user?.nickname[0]}
+            {"user?.nickname[0]"}
           </span>
         </div>
       </div>
       <div className="w-full">
         <div className="mt-1 space-x-1">
-          <span className="font-bold">{user?.nickname}</span>
-          <span className="text-sm text-gray-600">{user?.email}</span>
+          <span className="font-bold">{"user?.nickname"}</span>
+          <span className="text-sm text-gray-600">{"user?.email"}</span>
           <span className="text-xs text-gray-600">
             {`${
               new Date().getMonth() + 1
@@ -60,4 +76,22 @@ const WriteTweet = () => {
     </div>
   );
 };
-export default WriteTweet;
+export default EditTweet;
+
+export const getServerSideProps = withIronSessionSsr(
+  async function getServerSideProps(context) {
+    const {
+      req: {
+        session: { user },
+      },
+      query,
+    } = context;
+    return {
+      props: {
+        user: user,
+        query: query,
+      },
+    };
+  },
+  sessionOptions
+);
