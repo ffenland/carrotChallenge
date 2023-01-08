@@ -25,7 +25,11 @@ const handler = async (
   }
   if (req.method === "GET") {
     const tweets = await db.tweet.findMany({
-      include: { user: { select: { email: true, nickname: true } } },
+      include: {
+        user: { select: { email: true, nickname: true } },
+        likes: { select: { id: true } },
+      },
+      orderBy: { updatedAt: "desc" },
     });
     return res.json({ ok: true, tweets });
   }

@@ -22,18 +22,17 @@ const WriteTweet = () => {
   const onValid = (validForm: TweetForm) => {
     write({ ...validForm, userId: user?.id });
   };
-  console.log(data);
   useEffect(() => {
     if (data && data.ok) {
       router.push(`/tweet/${data.tweetId}`);
     }
   }, [data, router]);
   return (
-    <div className="flex">
+    <div className="flex mt-5">
       <div className="IMAGE mr-2">
         <div className="rounded-full bg-cyan-900 w-12 h-12 aspect-square flex justify-center items-center">
-          <span className="font-bold text-4xl mr-[2px] text-orange-100">
-            {user?.nickname[0]}
+          <span className="font-bold text-4xl text-orange-100">
+            {user?.nickname[0].toUpperCase()}
           </span>
         </div>
       </div>

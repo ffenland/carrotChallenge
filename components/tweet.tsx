@@ -1,7 +1,7 @@
 import Link from "next/link";
-import type { TweetWithUser } from "pages/tweet/[id]";
+import type { TweetWithUserAndLikes } from "pages/tweet/[id]";
 
-const Tweet = ({ tweet }: { tweet: TweetWithUser }) => {
+const Tweet = ({ tweet }: { tweet: TweetWithUserAndLikes }) => {
   const tweetCreatedDate = new Date(tweet.createdAt);
   const refinedDate = `${
     tweetCreatedDate.getMonth() + 1
@@ -11,8 +11,8 @@ const Tweet = ({ tweet }: { tweet: TweetWithUser }) => {
       <div className="flex cursor-pointer">
         <div className="IMAGE mr-2">
           <div className="rounded-full bg-cyan-900 w-12 h-12 aspect-square flex justify-center items-center">
-            <span className="font-bold text-4xl mr-[2px] text-orange-100">
-              {tweet.user.nickname[0]}
+            <span className="font-bold text-4xl text-orange-100">
+              {tweet.user.nickname[0].toUpperCase()}
             </span>
           </div>
         </div>
@@ -28,7 +28,7 @@ const Tweet = ({ tweet }: { tweet: TweetWithUser }) => {
           <div className="flex justify-end space-x-5 items-center px-5">
             <div className="space-x-1">
               <span>Like</span>
-              <span>1k</span>
+              <span>{tweet.likes ? tweet.likes.length : "0"}</span>
             </div>
           </div>
         </div>

@@ -9,11 +9,21 @@ const handler = async (
   res: NextApiResponse<ResponseType>
 ) => {
   const tweetId = req.query.id;
+  const user = req.session.user;
   const tweet = await db.tweet.findUnique({
     where: { id: tweetId.toString() },
-    include: { user: { select: { email: true, nickname: true } } },
+    include: {
+      user: { select: { email: true, nickname: true } },
+      likes: { select: { id: true } },
+    },
   });
-  return res.json({ ok: true, tweet });
+  const isLiked = Boolean(
+    await db.like.findFirst({
+      where: { tweetId: tweetId.toString(), userId: user.id },
+      select: { id: true },
+    })
+  );
+  return res.json({ ok: true, tweet, isLiked });
 };
 
 export default withApiSession(withHandler({ methods: ["GET"], handler }));

@@ -1,95 +1,114 @@
-import Button from "@components/button";
-import useMutation from "@lib/useMutation";
-import useUser from "@lib/useUser";
+import Layout from "@components/layout";
 import { withIronSessionSsr } from "iron-session/next";
 import { sessionOptions } from "@lib/withSession";
+import type { Tweet } from "@prisma/client";
 import { useRouter } from "next/router";
-import React, { useEffect } from "react";
-import { useForm } from "react-hook-form";
 import useSWR from "swr";
+import Button from "@components/button";
+import useMutation from "@lib/useMutation";
+import { useForm } from "react-hook-form";
+import { useEffect } from "react";
 
+export interface TweetWithUserAndLikes extends Tweet {
+  user: { email: string; nickname: string };
+  likes: { id: string }[];
+}
+
+interface TweetResponse {
+  ok: boolean;
+  tweet: TweetWithUserAndLikes;
+  isLiked: boolean;
+}
+
+interface SessionUser {
+  user: { id: string };
+}
 interface TweetForm {
   tweetText: string;
 }
 interface TweetWriteResponse {
   ok: boolean;
-  tweetId: string;
 }
 
-interface EditTweetProps {
-  user: {
-    id: string;
-  };
-  query: string;
-}
-
-const EditTweet = ({ user, query }: EditTweetProps) => {
+const TweetDetailEdit = ({ user }: SessionUser) => {
   const router = useRouter();
-  const { register, handleSubmit } = useForm<TweetForm>();
-  const [edit, { data, loading }] =
-    useMutation<TweetWriteResponse>("/api/tweet");
   const tweetId = router.query.id;
-  const { data: tweetData } = useSWR(tweetId ? `/api/tweet/${query}` : null);
+  const { data } = useSWR<TweetResponse>(
+    tweetId ? `/api/tweet/${tweetId}` : null
+  );
+  const { register, handleSubmit } = useForm<TweetForm>();
+  const [write, { data: writeData, loading }] = useMutation<TweetWriteResponse>(
+    `/api/tweet/${tweetId}/edit`
+  );
   const onValid = (validForm: TweetForm) => {
-    edit({ ...validForm, userId: user?.id });
+    if (loading) return;
+    write({ ...validForm, userId: user?.id });
   };
   useEffect(() => {
-    if (data && data.ok) {
-      router.push(`/tweet/${data.tweetId}`);
+    if (writeData && writeData.ok) {
+      router.push(`/`);
     }
-  }, [data, router]);
+  }, [writeData, router]);
 
-  useEffect(() => {
-    if (tweetData && tweetData.tweet) {
-      console.log(tweetData);
-    }
-  }, [tweetData]);
-  return (
-    <div className="flex">
-      <div className="IMAGE mr-2">
-        <div className="rounded-full bg-cyan-900 w-12 h-12 aspect-square flex justify-center items-center">
-          <span className="font-bold text-4xl mr-[2px] text-orange-100">
-            {"user?.nickname[0]"}
-          </span>
+  if (data && data.tweet && user.id === data.tweet.userId) {
+    const tweetCreatedDate = new Date(data.tweet.createdAt);
+    const refinedDate = `${
+      tweetCreatedDate.getMonth() + 1
+    }월 ${tweetCreatedDate.getDate()}일 ${tweetCreatedDate.getHours()}시 ${tweetCreatedDate.getMinutes()}분`;
+    return (
+      <Layout title="Tweet">
+        <div className="flex rounded-md p-1 shadow-md border border-gray-50">
+          <div className="IMAGE mr-2">
+            <div className="rounded-full bg-cyan-900 w-12 h-12 aspect-square flex justify-center items-center">
+              <span className="font-bold text-4xl text-orange-100">
+                {data.tweet.user.nickname[0].toUpperCase()}
+              </span>
+            </div>
+          </div>
+          <div className="w-full">
+            <div className="mt-1 space-x-1">
+              <span className="font-bold">{data.tweet.user.nickname}</span>
+              <span className="text-sm text-gray-600">
+                {data.tweet.user.email}
+              </span>
+              <span className="text-sm text-gray-600">{refinedDate}</span>
+            </div>
+            <form onSubmit={handleSubmit(onValid)} className="mt-2">
+              <textarea
+                {...register("tweetText", {
+                  required: true,
+                  maxLength: 140,
+                  value: data?.tweet.text,
+                })}
+                className="w-full outline-none border border-grau-200 p-5 rounded-md focus:border-cyan-100"
+                rows={8}
+                maxLength={140}
+              ></textarea>
+              <Button title={loading ? "Loading..." : "Edit tweet"} />
+            </form>
+          </div>
         </div>
-      </div>
-      <div className="w-full">
-        <div className="mt-1 space-x-1">
-          <span className="font-bold">{"user?.nickname"}</span>
-          <span className="text-sm text-gray-600">{"user?.email"}</span>
-          <span className="text-xs text-gray-600">
-            {`${
-              new Date().getMonth() + 1
-            }월${new Date().getDate()}일 ${new Date().getHours()}시 ${new Date().getMinutes()}분`}
-          </span>
+      </Layout>
+    );
+  } else {
+    return (
+      <Layout title="Tweet">
+        <div>
+          <span>No tweet, Not authorized.</span>
         </div>
-        <form onSubmit={handleSubmit(onValid)} className="mt-2">
-          <textarea
-            {...register("tweetText", { required: true, maxLength: 140 })}
-            className="w-full outline-none border border-grau-200 p-5 rounded-md focus:border-cyan-100"
-            rows={8}
-            maxLength={140}
-          ></textarea>
-          <Button title="Tweet" />
-        </form>
-      </div>
-    </div>
-  );
+      </Layout>
+    );
+  }
 };
-export default EditTweet;
+
+export default TweetDetailEdit;
 
 export const getServerSideProps = withIronSessionSsr(
-  async function getServerSideProps(context) {
-    const {
-      req: {
-        session: { user },
-      },
-      query,
-    } = context;
+  async function getServerSideProps({ req }) {
+    const user = req.session.user;
     return {
       props: {
         user: user,
-        query: query,
       },
     };
   },

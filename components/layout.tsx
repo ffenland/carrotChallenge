@@ -25,7 +25,7 @@ const Layout = ({ title, children }: LayoutProps) => {
   };
   return (
     <div className="w-full">
-      <header className="fixed top-0 max-w-md w-full z-10 flex justify-between items-center py-4 px-2 bg-red-400">
+      <header className="fixed top-0 max-w-md w-full z-10 flex justify-between items-center py-4 px-2 bg-red-400 rounded-md">
         <div className="flex-1 cursor-pointer" onClick={onHomeClick}>
           <svg
             className="w-7 h-7"

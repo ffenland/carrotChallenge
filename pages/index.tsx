@@ -1,5 +1,8 @@
+import Button from "@components/button";
+import FloatingButton from "@components/floatingButton";
 import Layout from "@components/layout";
 import OneTweet from "@components/tweet";
+import { useRouter } from "next/router";
 import React from "react";
 import useSWR from "swr";
 import { TweetWithUser } from "./tweet/[id]";
@@ -10,11 +13,11 @@ interface GetAllTweets {
 }
 
 const Home = () => {
+  const router = useRouter();
   const { data } = useSWR<GetAllTweets>("/api/tweet");
   return (
     <Layout title="Home">
       <div>
-        <div className="WRITE"></div>
         <div className="TWEETS space-y-2">
           {data?.tweets?.map((tweet) => (
             <div
@@ -24,6 +27,15 @@ const Home = () => {
               <OneTweet tweet={tweet} />
             </div>
           ))}
+        </div>
+        <div className="WRITE mt-5 shadow-md">
+          <Button
+            title="Write New Tweet"
+            type="large"
+            onClick={() => {
+              router.push("/tweet/write");
+            }}
+          />
         </div>
       </div>
     </Layout>
