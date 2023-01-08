@@ -9,7 +9,9 @@ declare module "iron-session" {
 }
 export const sessionOptions = {
   cookieName: "carrotsession",
-  password: process.env.SESSION_PASSWORD!,
+  password: process.env.SESSION_PASSWORD
+    ? process.env.SESSION_PASSWORD
+    : "koKB0vfkzoh4ZxucV1CV5DGeQ3ZRW6KUx",
   cookieOptions: {
     secure: process.env.NODE_ENV === "production",
   },
