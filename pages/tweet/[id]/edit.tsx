@@ -56,7 +56,7 @@ const TweetDetailEdit = ({ user }: SessionUser) => {
       tweetCreatedDate.getMonth() + 1
     }월 ${tweetCreatedDate.getDate()}일 ${tweetCreatedDate.getHours()}시 ${tweetCreatedDate.getMinutes()}분`;
     return (
-      <Layout title="Tweet">
+      <Layout title="Edit Tweet">
         <div className="flex rounded-md p-1 shadow-md border border-gray-50">
           <div className="IMAGE mr-2">
             <div className="rounded-full bg-cyan-900 w-12 h-12 aspect-square flex justify-center items-center">
